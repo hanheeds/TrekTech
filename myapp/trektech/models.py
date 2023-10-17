@@ -42,6 +42,6 @@ def create_example_trip(city="Chicago"):
 	new_object.save()
 
 	# get field from object
-	print(f"city: {Trip.trips.get_last_trip().start_date}")
+	print(f"start date: {Trip.trips.get_last_trip().start_date}")
 	print(f"city: {Trip.trips.get_last_trip().city}")
 	return Trip.trips.get_last_trip()

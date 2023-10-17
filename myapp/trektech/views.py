@@ -10,24 +10,32 @@ def get_chatbot_response(user_text):
 
 # Create your views here.
 def index(request):
-	chat_history = request.session.get('chat_history', [])
+	# chat_history = request.session.get('chat_history', [])
 	context = {}
-
+	chat_history = request.session.get('chat_history', []) 
+	bot_response = ""
 	if request.method == 'POST':
 		user_text = request.POST['user_text']
 		chat_history.append({'user': True, 'text': user_text})
-
+		# get trip details from user
 		if request.session.get('initial', False) is False:
-			generated_text = parse_trip(user_text) 
+			generated_text = parse_trip(user_text, call_api=False) 
 			trip = create_trip_from_values(generated_text)
 			bot_response = f"Your party of {trip.num_travelers} wants to go to {trip.city}, {trip.country} from {trip.start_date} to {trip.end_date}."
 			request.session['initial'] = True
 		else:
 			bot_response = get_chatbot_response(user_text)
-
+	elif request.method == 'GET':
+		# for the first message in chat, ask user for trip details
+		if len(chat_history) == 0:
+			bot_response = "What type of trip would you like to go one? Please tell me where, when, and how many people"
+	else:
+		# only handling get and post requests so far
+		print("unsupported request")
+	if bot_response:
 		chat_history.append({'user': False, 'text': bot_response})
-		request.session['chat_history'] = chat_history
-		context['chat_history'] = chat_history
+	request.session['chat_history'] = chat_history
+	context['chat_history'] = chat_history
 	return render(request, template_name="index.html", context=context)
 
 

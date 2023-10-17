@@ -3,10 +3,7 @@
 <h2>Chatbot</h2>
 <div id="chat-container">
 	<div id="chat-history">
-		<div class="bot-message">
-			What type of trip would you like to go one? Please tell me where, when, and how many people
-		</div>
-		<!-- {% for message in chat_history %} -->
+		{% for message in chat_history %}
 			{% if message.user %}
 				<div class="user-message">
 					{{ message.text }}
@@ -16,7 +13,7 @@
 					{{ message.text }}
 				</div>
 			{% endif %}
-		<!-- {% endfor %} -->
+		{% endfor %}
 	</div>
 </div>
 <div id="user-input">
