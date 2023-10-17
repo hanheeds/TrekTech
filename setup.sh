@@ -12,3 +12,4 @@ pip install -r requirements.txt
 set -o allexport
 source keys.env
 set +o allexport
+python3 myapp/manage.py migrate
