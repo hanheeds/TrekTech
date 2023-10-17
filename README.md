@@ -11,8 +11,3 @@ To start a local server, from the root directory run:
 ```
 python myapp/manage.py runserver
 ```
-
-Anytime someone else makes changes to the django Models, to apply these changes to your local database, run:
-```
-python myapp/manage.py migrate
-```
