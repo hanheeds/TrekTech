@@ -9,3 +9,6 @@ else
     source venv/bin/activate # mac/linux
 fi
 pip install -r requirements.txt
+set -o allexport
+source keys.env
+set +o allexport

@@ -1,10 +1,29 @@
+
 import dataclasses
 import openai
 import http.client
 import requests
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+def load_secrets():
+    """
+    Function to get api keys from .env files. More api key scan be added and returned.
+    """
+    load_dotenv()
+    env_path = Path(".") / ".env"
+    load_dotenv(dotenv_path=env_path)
+
+    open_ai_key = os.getenv("OPENAI_API_KEY")
+
+    return {
+        "OPENAI_API_KEY": open_ai_key
+    }
+
 # Set your OpenAI API key
 def connect_gpt_api(): 
-    api_key = "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"
+    api_key = load_secrets()["OPENAI_API_KEY"]
 
     # Initialize the OpenAI API client
     openai.api_key = api_key
@@ -93,3 +112,5 @@ def main():
 #print(restaurants)
 # Extract localized names
 #localized_names = [item['localizedName'] for item in restaurants['data']]
+
+
