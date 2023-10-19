@@ -1,11 +1,27 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <title>TrekTech</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-  <body>
-	<h1>Welcome to TrekTech!</h1>
-  </body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h2>Chatbot</h2>
+<div id="chat-container">
+	<div id="chat-history">
+		{% for message in chat_history %}
+			{% if message.user %}
+				<div class="user-message">
+					{{ message.text }}
+				</div>
+			{% else %}
+				<div class="bot-message">
+					{{ message.text }}
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+</div>
+<div id="user-input">
+	<form id="chat-form" method="post">
+		{% csrf_token %}
+		<input type="text" id="user-text" name="user_text" placeholder="Type your message...">
+		<button type="submit">Send</button>
+	</form>
+</div>
+
+{% endblock content %}
