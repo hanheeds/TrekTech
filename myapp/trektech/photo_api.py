@@ -1,5 +1,6 @@
 import requests
 import os
+import random
 
 API_KEY = 'rYBWcsj70IHtuiF9UiLCzXwzsPFk9TgXvNwh5alElLEPCGruMcAao5uw'
 BASE_URL = 'https://api.pexels.com/v1/search'
@@ -11,7 +12,7 @@ def download_photo(query, save_directory='./'):
     
     params = {
         'query': query,
-        'per_page': 1,
+        'per_page': 15,  # Adjust as needed. 15 is the default.
         'page': 1
     }
     
@@ -19,7 +20,10 @@ def download_photo(query, save_directory='./'):
     
     if response.status_code == 200:
         data = response.json()
-        photo_url = data['photos'][0]['src']['large']
+
+        # Randomly select a photo from the returned results
+        photo = random.choice(data['photos'])
+        photo_url = photo['src']['large']
         
         # Ensure the directory exists. If not, create it.
         os.makedirs(save_directory, exist_ok=True)
