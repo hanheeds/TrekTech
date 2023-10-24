@@ -17,31 +17,32 @@ google_palm_api_key = load_secrets()["PALM_API_KEY"]
 openai.api_key = api_key
 
 # Example of a good query
-good_query = """""
-        I want to do a 5 day roadtrip from Cape Town to Pretoria in South Africa.
-        I want to visit remote locations with mountain views
-        """
-# Example of a bad query
-bad_query = """
-        I want to walk from Cape Town to Pretoria in South Africa.
-        I want to visit remote locations with mountain views
-        """
+def validate(): 
+    good_query = """""
+            I want to do a 5 day roadtrip from Cape Town to Pretoria in South Africa.
+            I want to visit remote locations with mountain views
+            """
+    # Example of a bad query
+    bad_query = """
+            I want to walk from Cape Town to Pretoria in South Africa.
+            I want to visit remote locations with mountain views
+            """
 
-query = good_query
+    query = good_query
 
-# Get the response for the validation
-val_response = validate(api_key,query)
+    # Get the response for the validation
+    val_response = validate(api_key,query)
 
-# If the plan is not valid,
-if val_response['plan_is_valid'] =='no':
-    print(val_response['updated_request'])
-    print('Try another request')
-# If the plan is valid
-else:
-    # print either the itinerary or list of places
-    itinerary,list_of_places,validation = suggest(api_key, query)
-    # print(list_of_places)
-    print(list_of_places)
+    # If the plan is not valid,
+    if val_response['plan_is_valid'] =='no':
+        print(val_response['updated_request'])
+        print('Try another request')
+    # If the plan is valid
+    else:
+        # print either the itinerary or list of places
+        itinerary,list_of_places,validation = suggest(api_key, query)
+        # print(list_of_places)
+        print(list_of_places)
 
 
 
@@ -82,74 +83,7 @@ def connect_gpt_api():
     print(generated_text)
 
 
-def search_restaurant_location_ID(location):
 
-    url =  "https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchLocation"
-
-    querystring = {"query":location}
-
-    headers = {
-        "X-RapidAPI-Key": "53bd119ccfmsh364f7fc48f6cb7bp182915jsnd2899197f369",
-        "X-RapidAPI-Host": "tripadvisor16.p.rapidapi.com"
-    }
-
-    response = requests.get(url, headers=headers, params=querystring)
-
-    json = response.json()
-    id = str(json['data'][0]['locationId']) 
-
-    return id
-
-def search_restaurant(location_id): 
-    import requests
-
-    url = "https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchRestaurants"
-    querystring = {"locationId":location_id}
-
-    headers = {
-        "X-RapidAPI-Key": "53bd119ccfmsh364f7fc48f6cb7bp182915jsnd2899197f369",
-        "X-RapidAPI-Host": "tripadvisor16.p.rapidapi.com"
-    }
-
-    response = requests.get(url, headers=headers, params=querystring)
-    
-    restaurant_list = []
-    for i in response['data']['data']:  
-        restaurant_list.append(i['name'])
-
-    return restaurant_list
-    
-
-def search_country_activity(): 
-    url = "https://travel-info-api.p.rapidapi.com/country-activities"
-
-    querystring = {"country":"spain"}
-
-    headers = {
-        "X-RapidAPI-Key": "53bd119ccfmsh364f7fc48f6cb7bp182915jsnd2899197f369",
-        "X-RapidAPI-Host": "travel-info-api.p.rapidapi.com"
-    }
-
-    response = requests.get(url, headers=headers, params=querystring)
-    activities = response.json()
-    print(activities)
-   # print(activities['activities'])
-
-
-    return activities['data']['activities']
-    
-
-
-def main(): 
-    #location_id = search_restaurant_location_ID('boston')
-    #restaurant_list = search_restaurant(location_id)
-    #country_activities = search_country_activity()
-    return 
-
-#restaurants = main()
-#print(restaurants)
-# Extract localized names
-#localized_names = [item['localizedName'] for item in restaurants['data']]
 
 
 
