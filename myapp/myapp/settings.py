@@ -128,3 +128,8 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_HTTPONLY = True
 # more convenient for testing
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
