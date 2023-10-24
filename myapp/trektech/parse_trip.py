@@ -1,22 +1,8 @@
 import openai
 import os
-from dotenv import load_dotenv
+from .load_api import load_secrets
 from pathlib import Path
 from datetime import datetime
-
-def load_secrets():
-    """
-    Function to get api keys from .env files. More api key scan be added and returned.
-    """
-    load_dotenv()
-    env_path = Path(".") / ".env"
-    load_dotenv(dotenv_path=env_path)
-
-    open_ai_key = os.getenv("OPENAI_API_KEY")
-
-    return {
-        "OPENAI_API_KEY": open_ai_key
-    }
 
 
 def parse_trip(user_text, call_api=True):
