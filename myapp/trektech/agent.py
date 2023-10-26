@@ -5,7 +5,7 @@ from langchain.llms import GooglePalm
 # for OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain, SequentialChain
-from myapp.trektech.templates import (
+from .templates import (
     ValidationTemplate,
     ItineraryTemplate,
     MappingTemplate,
