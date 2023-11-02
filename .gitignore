@@ -2,3 +2,5 @@ venv
 __pycache__
 db.sqlite3
 keys.env
+myapp/media/itinerary.jpg
+myapp/media/travel.jpg

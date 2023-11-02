@@ -5,7 +5,7 @@ import random
 API_KEY = 'rYBWcsj70IHtuiF9UiLCzXwzsPFk9TgXvNwh5alElLEPCGruMcAao5uw'
 BASE_URL = 'https://api.pexels.com/v1/search'
 
-def download_photo(query, save_directory='./'):
+def download_photo(query, save_directory='./', save_filename="image"):
     headers = {
         'Authorization': API_KEY
     }
@@ -17,7 +17,6 @@ def download_photo(query, save_directory='./'):
     }
     
     response = requests.get(BASE_URL, headers=headers, params=params)
-    
     if response.status_code == 200:
         data = response.json()
 
@@ -30,10 +29,10 @@ def download_photo(query, save_directory='./'):
         
         photo_response = requests.get(photo_url, stream=True)
         if photo_response.status_code == 200:
-            with open(os.path.join(save_directory, f"{query}.jpg"), 'wb') as file:
+            with open(os.path.join(save_directory, f"{save_filename}.jpg"), 'wb') as file:
                 for chunk in photo_response.iter_content(chunk_size=8192):
                     file.write(chunk)
-            return f"Photo saved as {query}.jpg in {save_directory}"
+            return f"Photo saved as {save_filename}.jpg in {save_directory}"
         else:
             return "Failed to download the photo."
     else:

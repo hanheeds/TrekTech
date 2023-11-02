@@ -63,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+				'django.template.context_processors.media',
             ],
         },
     },
@@ -116,7 +117,13 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# we'll use media files to store the generated images
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -128,8 +135,3 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_HTTPONLY = True
 # more convenient for testing
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
-
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
