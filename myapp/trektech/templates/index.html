@@ -1,5 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
+<style>
+    .image-container {
+      max-width: 90%; /* Set maximum width to 100% of the parent */
+      overflow: hidden; /* Hide any overflowing content */
+    }
+
+    .image-container img {
+      width: 100%; /* Make the image fill the container */
+      height: auto; /* Maintain aspect ratio */
+      display: block; /* Remove default inline styles */
+      margin: 0 auto; /* Center the image horizontally */
+    }
+  </style>
 <div class="container-fluid vh-100 px-4">
 	<div class="row h-100">
 		<div id="chat-area"  class="col-lg-6">
@@ -37,15 +50,18 @@
 				<div class="card-header">Itinerary</div>
 				<div class="card-body d-flex flex-column overflow-auto">
 					<div class="card-text">
-						{% for activity in itinerary %}
-							<p class="mb-0 pb-0">{{ activity }}</p>
-						{% endfor %} 
-					</div>	
-					{% if itinerary %}
-						<img src='./media/{{ image_name }}.jpg' alt="Image of travel destination">
-					{% else %}
-						<img src="./media/{{ image_name }}.jpg" alt="Image of travel planning">
-					{% endif %}
+						{% if itinerary %}
+							{% for day, description in itinerary.items %}
+								<h6>Day {{ day }}</h6>
+								<p>{{ description }}</p>
+								<div class="image-container mb-2">
+									<img src='./media/itinerary-{{ day }}.jpg' alt="Image of travel destination">
+								</div>
+							{% endfor %}
+						{% else %}
+							<img src="./media/{{ image_name }}.jpg" alt="Image of travel planning">
+						{% endif %}
+					</div>
 				</div>
 			</div>
 		</div>
