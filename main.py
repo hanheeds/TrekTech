@@ -2,10 +2,11 @@ import openai
 from myapp.trektech.agent import Agent
 from myapp.trektech.load_api import load_secrets
 import json
+from myapp.trektech.api_functions import *
 
 # Load the API keys
-api_key = load_secrets()["OPENAI_API_KEY"]
-api_key = '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'
+api_key = load_secrets()["OPENAI_API_KEY"] ## I don't know why this isn't working right now
+api_key = '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'
 
 # Initialize the OpenAI API client
 openai.api_key = api_key
@@ -49,7 +50,8 @@ itinerary_str, itinerary_dict = initial_run(good_query)
 for day, value in itinerary_dict.items():
     print(day)
 
-# Update the requests. 
+
+#### Now if you want to update the requests with more prompts ####
 def update_itinerary(itinerary, update_query):
     # Setting up the travel agent
     travel_agent = Agent(api_key,debug=False)
@@ -62,9 +64,32 @@ def update_itinerary(itinerary, update_query):
 
 
 # Update the itinerary
-update_query = "Make it 4 days"
+# update_query = "Make it 4 days"
+# new_itinerary_str,new_itinerary_dict = update_itinerary(itinerary_str, update_query)
+
+# print(new_itinerary_dict)
+
+city = itinerary_dict['day1']['city']
+location_id = search_restaurant_location_ID(city)
+restaurant_list = search_restaurant(location_id)
+
+
+def generate_prompt_restaurants(restaurant_list): 
+    prompt = """
+    this is a restaurant dictionary that has the following information: the keys are the restaurant name, 
+    then the first element in the value is the cuisine type, the second value is the price range, and the third value is the user rating. 
+    Update the itinerary based on these restaurants
+    Please do not categorize the days by cuisine, such that there is variety in each day. \n
+    """ + str(restaurant_list)
+    return prompt
+
+
+# Update the itinerary
+update_query = generate_prompt_restaurants(restaurant_list)
 new_itinerary_str,new_itinerary_dict = update_itinerary(itinerary_str, update_query)
 
 print(new_itinerary_dict)
+
+
 
 
