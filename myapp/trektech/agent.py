@@ -8,7 +8,9 @@ from langchain.chains import LLMChain, SequentialChain
 from myapp.trektech.templates import (
     ValidationTemplate,
     ItineraryTemplate,
+    ItineraryTemplate_v2,
     MappingTemplate,
+    UpdateTemplate
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -34,8 +36,13 @@ class Agent(object):
         self.validation_chain = self._set_up_validation_chain(debug)
 
         self.itinerary_prompt = ItineraryTemplate()
+        self.itinerary_prompt_v2 = ItineraryTemplate_v2()
         self.mapping_prompt = MappingTemplate()
+        self.update_prompt = UpdateTemplate()
+
         self.agent_chain = self._set_up_agent_chain(debug)
+        self.agent_chain2 = self._set_up_agent_chain2(debug)
+        self.agent_chain3 = self._set_up_agent_chain3(debug)
 
 
     def _set_up_validation_chain(self, debug=False):
@@ -60,13 +67,9 @@ class Agent(object):
         return overall_chain
 
     def validate_travel(self, query):
-        self.logger.info("Validating query")
+        self.logger.info("Validating query...")
         t1 = time.time()
-        self.logger.info(
-            "Calling validation (model is {}) on user input".format(
-                self.chat_model.model_name
-            )
-        )
+
         validation_result = self.validation_chain(
             {
                 "query": query,
@@ -109,6 +112,49 @@ class Agent(object):
             )
 
         return overall_chain
+    
+    def _set_up_agent_chain2(self, debug=False):
+
+        # set up LLMChain to get the itinerary as a string
+        travel_agent = LLMChain(
+                llm=self.chat_model,
+                prompt=self.itinerary_prompt_v2.chat_prompt,
+                verbose=debug,
+                output_key="agent_suggestion",
+            )
+        
+        # overall chain allows us to call the travel_agent and parser in
+        # sequence, with labelled outputs.
+        overall_chain = SequentialChain(
+                chains=[travel_agent],
+                input_variables=["query"],
+                output_variables=["agent_suggestion"],
+                verbose=debug,
+            )
+
+        return overall_chain
+    
+    def _set_up_agent_chain3(self, debug=False):
+    
+        # set up LLMChain to get the itinerary as a string
+        travel_agent = LLMChain(
+                llm=self.chat_model,
+                prompt=self.update_prompt.chat_prompt,
+                verbose=debug,
+                output_key="agent_suggestion",
+            )
+        
+        # overall chain allows us to call the travel_agent and parser in
+        # sequence, with labelled outputs.
+        overall_chain = SequentialChain(
+                chains=[travel_agent],
+                input_variables=["itinerary", "update_query"],
+                output_variables=["agent_suggestion"],
+                verbose=debug,
+            )
+
+        return overall_chain
+    
     def suggest_travel(self, query):
         mapping_prompt = MappingTemplate()
 
@@ -122,34 +168,41 @@ class Agent(object):
         trip_suggestion = agent_result["agent_suggestion"]
         waypoints_dict = agent_result["mapping_list"].dict() 
 
-        return trip_suggestion, waypoints_dict, agent_result          
+        return trip_suggestion, waypoints_dict, agent_result  
+    
+    def suggest_itinerary(self, query):
 
-# FINAL FUNCTIONS TO USE BELOW
+        self.logger.info("Suggesting information...")
+        t1 = time.time()
 
+        agent_result = self.agent_chain2(
+                        {
+                            "query": query,
+                        }
+                    )
 
-def validate(open_ai_api_key,query):
-    """
-    This function takes a query and returns a json object describing whether a query is valid. 
+        trip_suggestion = agent_result["agent_suggestion"]
 
-    EXAMPLE:
-    query:
-        I want to do a 5 day roadtrip from Cape Town to Pretoria in South Africa.
-    result:
-        {'plan_is_valid': 'yes', 'updated request': 'none'}
+        t2 = time.time()
+        self.logger.info("Time to suggest travel plan: {}".format(round(t2 - t1, 2)))
 
-    query:
-        I want to walk from Cape Town to Pretoria in South Africa.
-    result:
-        {'plan_is_valid': 'no','updated_request': 'Walking from Cape Town to Pretoria in South Africa is not a reasonable request...'}
-    """
-    travel_agent = Agent(open_ai_api_key,debug=False)
-    return travel_agent.validate_travel(query)
+        return trip_suggestion    
+    
+    def update_itinerary(self, itinerary, update_query):
+    
+        self.logger.info("Updating information...")
+        t1 = time.time()
 
-def suggest(openai_api_key, query):
-    travel_agent = Agent(
-        open_ai_api_key=openai_api_key,
-    )
+        agent_result = self.agent_chain3(
+                        {
+                            "itinerary": itinerary,
+                            "update_query": update_query
+                        }
+                    )
 
-    itinerary, list_of_places, validation = travel_agent.suggest_travel(query)
+        updated_suggestion = agent_result["agent_suggestion"]
 
-    return itinerary, list_of_places, validation
+        t2 = time.time()
+        self.logger.info("Time to update travel plan: {}".format(round(t2 - t1, 2)))
+
+        return updated_suggestion  

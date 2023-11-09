@@ -95,6 +95,75 @@ class ItineraryTemplate(object):
             [self.system_message_prompt, self.human_message_prompt]
         )
 
+class ItineraryTemplate_v2(object):
+    def __init__(self):
+        self.system_template = """
+        You are a travel agent who helps users make exciting travel plans.
+
+        The user's request will be denoted by four hashtags. Convert the user's request into a fun, detailed itinerary describing the city they should visit, restaurants they should go to for breakfast, lunch, and dinner, and the activities they should do.
+
+        Try to include the specific address of each location.
+
+        Remember to take the user's preferences and timeframe into account, and give them an itinerary that would be fun and doable given their constraints.
+
+        Return the itinerary as a dictionary of dictionaries in the following format:
+        (Put curly braces around the whole thing and around the value for each day)
+
+        day1: itinerary: text, city: city, country: , breakast: breakast, lunch: lunch, dinner: dinner acitivity: activity,
+
+        day2: itinerary: text, city: city, country: , breakfast: breakast, lunch:lunch--, dinner: dinner, acitivity: activity
+        
+
+        For the itinerary value, input a detailed itinerary. 
+
+        Stay in only one city the  whole day.
+        The city, breakfast, lunch, dinner, and activity values should all come from the itinerary.
+        Return the dictionary and nothing else. 
+    """
+
+        self.human_template = """
+    ####{query}####
+    """
+
+        self.system_message_prompt = SystemMessagePromptTemplate.from_template(
+            self.system_template,
+        )
+        self.human_message_prompt = HumanMessagePromptTemplate.from_template(
+            self.human_template, input_variables=["query"]
+        )
+
+        self.chat_prompt = ChatPromptTemplate.from_messages(
+            [self.system_message_prompt, self.human_message_prompt]
+        )
+
+class UpdateTemplate(object):
+    def __init__(self):
+        self.system_template = """
+        You are a travel agent who helps users make exciting travel plans.
+
+        Update the itinerary below based on the updated query requirements.
+        Don't change the keys of the dictionary, just the values of it. 
+
+        {itinerary}
+    """
+
+        self.human_template = """
+    ####{update_query}####
+    """
+
+        self.system_message_prompt = SystemMessagePromptTemplate.from_template(
+            self.system_template,
+
+        )
+        self.human_message_prompt = HumanMessagePromptTemplate.from_template(
+            self.human_template, input_variables=["query"]
+        )
+
+        self.chat_prompt = ChatPromptTemplate.from_messages(
+            [self.system_message_prompt, self.human_message_prompt]
+        )
+
+
 class Trip(BaseModel):
     start: str = Field(description="start location of trip")
     end: str = Field(description="end location of trip")
