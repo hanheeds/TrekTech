@@ -49,10 +49,10 @@ def restaurants(city):
 # print(restaurants('Cape Town, South Africa'))
 
 
-def search_country_activity(): 
+def search_country_activity(country): 
     url = "https://travel-info-api.p.rapidapi.com/country-activities"
 
-    querystring = {"country":"spain"}
+    querystring = {"country":country}
 
     headers = {
         "X-RapidAPI-Key": "53bd119ccfmsh364f7fc48f6cb7bp182915jsnd2899197f369",

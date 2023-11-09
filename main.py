@@ -6,7 +6,7 @@ from myapp.trektech.api_functions import *
 
 # Load the API keys
 api_key = load_secrets()["OPENAI_API_KEY"] ## I don't know why this isn't working right now
-api_key = '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'
+api_key = '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'
 
 # Initialize the OpenAI API client
 openai.api_key = api_key
@@ -73,19 +73,32 @@ city = itinerary_dict['day1']['city']
 location_id = search_restaurant_location_ID(city)
 restaurant_list = search_restaurant(location_id)
 
+activity_list = itinerary_dict['day1']['country']
 
-def generate_prompt_restaurants(restaurant_list): 
-    prompt = """
-    this is a restaurant dictionary that has the following information: the keys are the restaurant name, 
+
+def generate_prompt_restaurants(restaurant_list, activity_list): 
+    restaurant_prompt = """
+    Below you will have the following: a restaurant dictionary and an activities dictionary for the same city/area. 
+    the restaurant dictionary thas the following information: the keys are the restaurant name, 
     then the first element in the value is the cuisine type, the second value is the price range, and the third value is the user rating. 
-    Update the itinerary based on these restaurants
     Please do not categorize the days by cuisine, such that there is variety in each day. \n
     """ + str(restaurant_list)
+
+    activity_prompt = """
+    this is the acitvities dictionary. The keys are the name of the activity, and the values are a description of the activity. 
+    """ + str(activity_list)
+
+    combo_prompt = """
+    Using both of these dictionaries, recreate the original itinerary using activities and restaurants that are listed in the dictionaries. 
+    Provide a brief description of each activity as well. 
+    """
+    
+    prompt = restaurant_prompt + activity_prompt + combo_prompt
     return prompt
 
 
 # Update the itinerary
-update_query = generate_prompt_restaurants(restaurant_list)
+update_query = generate_prompt_restaurants(restaurant_list, activity_list)
 new_itinerary_str,new_itinerary_dict = update_itinerary(itinerary_str, update_query)
 
 print(new_itinerary_dict)
