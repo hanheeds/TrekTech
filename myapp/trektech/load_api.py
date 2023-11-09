@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from pathlib import Path
 
 def load_secrets():
@@ -7,14 +7,13 @@ def load_secrets():
     Function to get api keys from .env files. More api key scan be added and returned.
     """
     load_dotenv()
-    env_path = Path(".") / ".env"
-    load_dotenv(dotenv_path=env_path)
+    # env_path = Path(__file__).parent.parent.parent / "keys.env"
+    load_dotenv(find_dotenv())
 
     open_ai_key = os.getenv("OPENAI_API_KEY")
-
-    palm_ai_key = os.getenv("PALM_API_KEY")
+    print("OPEN AI KEY: ",open_ai_key)
 
     return {
-        "OPENAI_API_KEY": open_ai_key,
-        "PALM_API_KEY": palm_ai_key
+        "OPENAI_API_KEY": open_ai_key
     }
+load_secrets()
