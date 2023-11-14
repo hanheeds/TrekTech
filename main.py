@@ -6,7 +6,7 @@ from myapp.trektech.api_functions import *
 
 # Load the API keys
 api_key = load_secrets()["OPENAI_API_KEY"] ## I don't know why this isn't working right now
-api_key = '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'
+api_key = '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'
 
 # Initialize the OpenAI API client
 openai.api_key = api_key
