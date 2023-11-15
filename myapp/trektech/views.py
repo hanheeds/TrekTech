@@ -37,6 +37,7 @@ def index(request):
 			val_response = travel_agent.validate_travel(user_text)
 			if val_response['plan_is_valid'] == 'no':
 				bot_response = val_response['updated_request']
+				context["image_name"] = "travel"
 			else:
 				session['valid_trip'] = True
 				itinerary_str = travel_agent.suggest_itinerary(user_text)
@@ -58,7 +59,7 @@ def index(request):
 				view_itinerary[day_num] = details['itinerary']
 				# pick a random activity to get an image of
 				activity = random.choice(details['activity'].split(","))
-				# print(f"Pictured activity for day {day_num}: {activity}")
+				print(f"Pictured activity for day {day_num}: {activity}")
 				download_photo(activity, settings.MEDIA_ROOT, f"itinerary-{day_num}") # we'll probably want a different query
 			context['itinerary'] = view_itinerary
 
