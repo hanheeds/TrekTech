@@ -33,6 +33,7 @@ class Agent(object):
         self.validation_prompt = ValidationTemplate()
         self.validation_chain = self._set_up_validation_chain(debug)
 
+
         self.itinerary_prompt_v2 = ItineraryTemplate_v2()
         self.update_prompt = UpdateTemplate()
 
@@ -119,7 +120,7 @@ class Agent(object):
             )
 
         return overall_chain
-    
+   
     def suggest_itinerary(self, query):
 
         self.logger.info("Suggesting information...")

@@ -2,6 +2,7 @@ import openai
 from myapp.trektech.agent import Agent
 from myapp.trektech.load_api import load_secrets
 import json
+
 from myapp.trektech.api_functions import *
 
 # Load the API keys
@@ -50,7 +51,6 @@ for day, value in itinerary_dict.items():
     print(day)
 
 
-#### Now if you want to update the requests with more prompts ####
 def update_itinerary(itinerary, update_query):
     # Setting up the travel agent
     travel_agent = Agent(api_key,debug=False)
@@ -95,9 +95,8 @@ def generate_prompt_restaurants(restaurant_list, activity_list):
     prompt = restaurant_prompt + activity_prompt + combo_prompt
     return prompt
 
+    return updated_itinerary_str, updated_itinerary_dict
 
-# Update the itinerary
-update_query = generate_prompt_restaurants(restaurant_list, activity_list)
 new_itinerary_str,new_itinerary_dict = update_itinerary(itinerary_str, update_query)
 
 print(new_itinerary_dict)
