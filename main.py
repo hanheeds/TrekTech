@@ -9,8 +9,7 @@ api_key = load_secrets()["OPENAI_API_KEY"] ## I don't know why this isn't workin
 api_key = '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'
 
 # Initialize the OpenAI API client
-openai.api_key = api_key
-
+openai.api_key = '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'
 
 # Initial run
 def initial_run(query): 
@@ -104,5 +103,4 @@ new_itinerary_str,new_itinerary_dict = update_itinerary(itinerary_str, update_qu
 print(new_itinerary_dict)
 
 
-
-
+    return 
