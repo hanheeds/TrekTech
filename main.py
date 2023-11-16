@@ -3,13 +3,14 @@ from myapp.trektech.agent import Agent
 from myapp.trektech.load_api import load_secrets
 import json
 
+from myapp.trektech.api_functions import *
+
 # Load the API keys
-api_key = load_secrets()["OPENAI_API_KEY"]
-api_key = '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'
+api_key = load_secrets()["OPENAI_API_KEY"] ## I don't know why this isn't working right now
+api_key = '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'
 
 # Initialize the OpenAI API client
-openai.api_key = api_key
-
+openai.api_key = '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'
 
 # Initial run
 def initial_run(query): 
@@ -49,7 +50,7 @@ itinerary_str, itinerary_dict = initial_run(good_query)
 for day, value in itinerary_dict.items():
     print(day)
 
-# Update the requests. 
+
 def update_itinerary(itinerary, update_query):
     # Setting up the travel agent
     travel_agent = Agent(api_key,debug=False)
@@ -62,9 +63,43 @@ def update_itinerary(itinerary, update_query):
 
 
 # Update the itinerary
-update_query = "Make it 4 days"
+# update_query = "Make it 4 days"
+# new_itinerary_str,new_itinerary_dict = update_itinerary(itinerary_str, update_query)
+
+# print(new_itinerary_dict)
+
+city = itinerary_dict['day1']['city']
+location_id = search_restaurant_location_ID(city)
+restaurant_list = search_restaurant(location_id)
+
+activity_list = itinerary_dict['day1']['country']
+
+
+def generate_prompt_restaurants(restaurant_list, activity_list): 
+    restaurant_prompt = """
+    Below you will have the following: a restaurant dictionary and an activities dictionary for the same city/area. 
+    the restaurant dictionary thas the following information: the keys are the restaurant name, 
+    then the first element in the value is the cuisine type, the second value is the price range, and the third value is the user rating. 
+    Please do not categorize the days by cuisine, such that there is variety in each day. \n
+    """ + str(restaurant_list)
+
+    activity_prompt = """
+    this is the acitvities dictionary. The keys are the name of the activity, and the values are a description of the activity. 
+    """ + str(activity_list)
+
+    combo_prompt = """
+    Using both of these dictionaries, recreate the original itinerary using activities and restaurants that are listed in the dictionaries. 
+    Provide a brief description of each activity as well. 
+    """
+    
+    prompt = restaurant_prompt + activity_prompt + combo_prompt
+    return prompt
+
+    return updated_itinerary_str, updated_itinerary_dict
+
 new_itinerary_str,new_itinerary_dict = update_itinerary(itinerary_str, update_query)
 
 print(new_itinerary_dict)
 
 
+    return 

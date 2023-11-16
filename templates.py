@@ -60,78 +60,24 @@ class ValidationTemplate(object):
             [self.system_message_prompt, self.human_message_prompt]
         )
 
-import requests
-from pathlib import Path
-
-def search_restaurant_location_ID(location):
-
-    url =  "https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchLocation"
-
-    querystring = {"query":location}
-
-    headers = {
-        "X-RapidAPI-Key": "53bd119ccfmsh364f7fc48f6cb7bp182915jsnd2899197f369",
-        "X-RapidAPI-Host": "tripadvisor16.p.rapidapi.com"
-    }
-
-    response = requests.get(url, headers=headers, params=querystring)
-
-    json = response.json()
-    id = str(json['data'][0]['locationId']) 
-
-    return id
-
-def search_restaurant(location_id): 
-    import requests
-
-    url = "https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchRestaurants"
-    querystring = {"locationId":location_id}
-
-    headers = {
-        "X-RapidAPI-Key": "53bd119ccfmsh364f7fc48f6cb7bp182915jsnd2899197f369",
-        "X-RapidAPI-Host": "tripadvisor16.p.rapidapi.com"
-    }
-
-    response = requests.get(url, headers=headers, params=querystring)
-
-    restaurants = response.json()
-    
-    restaurant_list = {}
-    for i in restaurants['data']['data']:  
-        restaurant_list[i['name']] = [i['establishmentTypeAndCuisineTags'], i['priceTag'], i['averageRating']]
-
-    return restaurant_list
-
-
-class ItineraryTemplate_v2(object):
+class ItineraryTemplate(object):
     def __init__(self):
         self.system_template = """
-        You are a travel agent who helps users make exciting travel plans.
+    You are a travel agent who helps users make exciting travel plans.
 
-        The user's request will be denoted by four hashtags. Convert the user's request into a fun, detailed itinerary describing the city they should visit, restaurants they should go to for breakfast, lunch, and dinner, and the activities they should do.
+    The user's request will be denoted by four hashtags. Convert the
+    user's request into a detailed itinerary describing the places
+    they should visit and the things they should do.
 
-        Try to include the specific address of each location.
+    Try to include the specific address of each location.
 
-        Remember to take the user's preferences and timeframe into account, and give them an itinerary that would be fun and doable given their constraints.
+    Remember to take the user's preferences and timeframe into account,
+    and give them an itinerary that would be fun and doable given their constraints.
 
-        Return the itinerary as a dictionary of dictionaries in the following format:
-        (Put curly braces around the whole thing and around the value for each day)
-
-        day1: itinerary: text, city: city, country: , breakast: breakast, lunch: lunch, dinner: dinner acitivity: activity,
-
-        day2: itinerary: text, city: city, country: , breakfast: breakast, lunch:lunch--, dinner: dinner, acitivity: activity
-        
-
-        For the itinerary value, input a detailed itinerary. 
-
-        Stay in only one city the  whole day.
-        The city, breakfast, lunch, dinner, and activity values should all come from the itinerary.
-        Return the dictionary and nothing else. 
-
-        Only use the breakfast data from this. 
-
-        
-
+    Return the itinerary as a bulleted list with clear start and end locations.
+    Be sure to mention the type of transit for the trip.
+    If specific start and end locations are not given, choose ones that you think are suitable and give specific addresses.
+    Your output must be the list and nothing else.
     """
 
         self.human_template = """
@@ -148,34 +94,6 @@ class ItineraryTemplate_v2(object):
         self.chat_prompt = ChatPromptTemplate.from_messages(
             [self.system_message_prompt, self.human_message_prompt]
         )
-
-class UpdateTemplate(object):
-    def __init__(self):
-        self.system_template = """
-        You are a travel agent who helps users make exciting travel plans.
-
-        Update the itinerary below based on the updated query requirements.
-        Don't change the keys of the dictionary, just the values of it. 
-
-        {itinerary}
-    """
-
-        self.human_template = """
-    ####{update_query}####
-    """
-
-        self.system_message_prompt = SystemMessagePromptTemplate.from_template(
-            self.system_template,
-
-        )
-        self.human_message_prompt = HumanMessagePromptTemplate.from_template(
-            self.human_template, input_variables=["query"]
-        )
-
-        self.chat_prompt = ChatPromptTemplate.from_messages(
-            [self.system_message_prompt, self.human_message_prompt]
-        )
-
 
 class Trip(BaseModel):
     start: str = Field(description="start location of trip")
@@ -234,6 +152,36 @@ class MappingTemplate(object):
             partial_variables={
                 "format_instructions": self.parser.get_format_instructions()
             },
+        )
+        self.human_message_prompt = HumanMessagePromptTemplate.from_template(
+            self.human_template, input_variables=["agent_suggestion"]
+        )
+
+        self.chat_prompt = ChatPromptTemplate.from_messages(
+            [self.system_message_prompt, self.human_message_prompt]
+        )
+
+class APITemplate(object):
+    def __init__(self):
+        self.system_template = """
+    You will be a travel agent that updates a given itinerary with the restaurant dictionary.
+    The restaurant dictionary that has the following information: the keys are the restaurant name, 
+    then the first element in the value is the cuisine type, the second value is the price range, and the third value is the user rating. 
+    Given this list, choose 3 restaurants for each day to add throughout each day (breakfast, lunch, dinner).
+    Add an address for each.
+    Please do not categorize the days by cuisine, such that there is variety in each day.
+    Rewrite the itinerary based on these restaurants.
+
+    Here is the restaurant dictionary:
+      {restaurant_list}
+    """
+
+        self.human_template = """
+      ####{agent_suggestion}####
+    """
+
+        self.system_message_prompt = SystemMessagePromptTemplate.from_template(
+            self.system_template,
         )
         self.human_message_prompt = HumanMessagePromptTemplate.from_template(
             self.human_template, input_variables=["agent_suggestion"]

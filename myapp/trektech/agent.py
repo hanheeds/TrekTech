@@ -7,9 +7,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import LLMChain, SequentialChain
 from .templates import (
     ValidationTemplate,
-    ItineraryTemplate,
     ItineraryTemplate_v2,
-    MappingTemplate,
     UpdateTemplate
 )
 
@@ -35,12 +33,10 @@ class Agent(object):
         self.validation_prompt = ValidationTemplate()
         self.validation_chain = self._set_up_validation_chain(debug)
 
-        self.itinerary_prompt = ItineraryTemplate()
+
         self.itinerary_prompt_v2 = ItineraryTemplate_v2()
-        self.mapping_prompt = MappingTemplate()
         self.update_prompt = UpdateTemplate()
 
-        self.agent_chain = self._set_up_agent_chain(debug)
         self.agent_chain2 = self._set_up_agent_chain2(debug)
         self.agent_chain3 = self._set_up_agent_chain3(debug)
 
@@ -82,36 +78,6 @@ class Agent(object):
         self.logger.info("Time to validate request: {}".format(round(t2 - t1, 2)))
 
         return validation_test
-
-    def _set_up_agent_chain(self, debug=False):
-        
-        # set up LLMChain to get the itinerary as a string
-        travel_agent = LLMChain(
-                llm=self.chat_model,
-                prompt=self.itinerary_prompt.chat_prompt,
-                verbose=debug,
-                output_key="agent_suggestion",
-            )
-        
-        # set up LLMChain to extract the waypoints as a JSON object
-        parser = LLMChain(
-                llm=self.chat_model,
-                prompt=self.mapping_prompt.chat_prompt,
-                output_parser=self.mapping_prompt.parser,
-                verbose=debug,
-                output_key="mapping_list",
-            )
-        
-        # overall chain allows us to call the travel_agent and parser in
-        # sequence, with labelled outputs.
-        overall_chain = SequentialChain(
-                chains=[travel_agent, parser],
-                input_variables=["query", "format_instructions"],
-                output_variables=["agent_suggestion", "mapping_list"],
-                verbose=debug,
-            )
-
-        return overall_chain
     
     def _set_up_agent_chain2(self, debug=False):
 
@@ -154,22 +120,7 @@ class Agent(object):
             )
 
         return overall_chain
-    
-    def suggest_travel(self, query):
-        mapping_prompt = MappingTemplate()
-
-        agent_result = self.agent_chain(
-                        {
-                            "query": query,
-                            "format_instructions": mapping_prompt.parser.get_format_instructions(),
-                        }
-                    )
-
-        trip_suggestion = agent_result["agent_suggestion"]
-        waypoints_dict = agent_result["mapping_list"].dict() 
-
-        return trip_suggestion, waypoints_dict, agent_result  
-    
+   
     def suggest_itinerary(self, query):
 
         self.logger.info("Suggesting information...")
