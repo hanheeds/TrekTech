@@ -102,6 +102,25 @@ def search_restaurant(location_id):
 
     return restaurant_list
 
+def generate_prompt_restaurants(restaurant_list, activity_list): 
+    restaurant_prompt = """
+    Below you will have the following: a restaurant dictionary and an activities dictionary for the same city/area. 
+    the restaurant dictionary thas the following information: the keys are the restaurant name, 
+    then the first element in the value is the cuisine type, the second value is the price range, and the third value is the user rating. 
+    Please do not categorize the days by cuisine, such that there is variety in each day. \n
+    """ + str(restaurant_list)
+
+    activity_prompt = """
+    this is the acitvities dictionary. The keys are the name of the activity, and the values are a description of the activity. 
+    """ + str(activity_list)
+
+    combo_prompt = """
+    Using both of these dictionaries, recreate the original itinerary using activities and restaurants that are listed in the dictionaries. 
+    Provide a brief description of each activity as well. 
+    """
+    
+    prompt = restaurant_prompt + activity_prompt + combo_prompt
+    return prompt
 
 class ItineraryTemplate_v2(object):
     def __init__(self):

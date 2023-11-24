@@ -4,7 +4,9 @@ from datetime import datetime
 from .agent import Agent
 from dotenv import load_dotenv
 from .load_api import load_secrets
-from .photo_api import download_photo
+from .photo_api2 import download_photo
+from .api_functions import *
+from .templates import generate_prompt_restaurants
 from django.conf import settings
 import json
 import random
@@ -40,19 +42,48 @@ def index(request):
 				context["image_name"] = "travel"
 			else:
 				session['valid_trip'] = True
+
+		# call APIs and generate itinerary and images
+		if session.get('valid_trip', False):
+
+			# if it's the initial query, create the initial itinerary
+			if session.get('initial_trip', True):
 				itinerary_str = travel_agent.suggest_itinerary(user_text)
 				bot_response = "Sounds like fun! I have created a custom itinerary for you" # I'm not sure if we want to have a different response
+				session['initial_trip'] = False
+				print("creating initial itinerary (without API info)")
+			# if the initial trip has already been created, update the itinerary 
+			else:
+				old_itinerary_str = session.get("itinerary_str")
+				bot_response = "I have updated your itinerary" # I'm not sure if we want to have a different response
+				itinerary_str = travel_agent.update_itinerary(old_itinerary_str, user_text)
+				print("creating updated itinerary based on users request (without API info)")
 
-		# if a valid trip has already been created, update  the itinerary
-		else:
-			old_itinerary_str = session.get("itinerary_str")
-			bot_response = "I have updated your itinerary" # I'm not sure if we want to have a different response
-			itinerary_str = travel_agent.update_itinerary(old_itinerary_str, user_text)
+			itinerary_dict = json.loads(itinerary_str)
+			# call resteraunt/activity APIs here
+			if not session.get('restaurant_list', False):
+				print("fetching restaurants")
+				city = itinerary_dict['day1']['city']
+				location_id = search_restaurant_location_ID(city)
+				restaurant_list = search_restaurant(location_id)
+				session['restaurant_list'] = restaurant_list
+			else:
+				print("using saved restaurant list")
+				restaurant_list = session.get("restaurant_list")
+			activity_list = []
+			for day, details in itinerary_dict.items():
+				activity_list.append(details['itinerary'])
 
-		# generate specific images and parse itinerary dict
-		if session.get('valid_trip', False):
-			session['itinerary_str'] = itinerary_str
-			itinerary_dict = json.loads(itinerary_str) # convert string into dictionary
+			update_prompt = generate_prompt_restaurants(restaurant_list, activity_list)
+			
+			# for BOTH the initial and updates, update
+			new_itinerary_str = travel_agent.update_itinerary(itinerary_str, update_prompt)
+			print("updating itinerary with real restaurants")
+			session['itinerary_str'] = new_itinerary_str
+			itinerary_dict = json.loads(new_itinerary_str) # convert string into dictionary
+			print(f"\n\nitinerary dict: {itinerary_dict}")
+
+			# generate images
 			view_itinerary = {}
 			for day, details in itinerary_dict.items():
 				day_num = day[3:]
